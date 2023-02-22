@@ -1,73 +1,56 @@
 #include <iostream>
 #include <queue>
-#define MAX 10000 + 5
+#define MAX 10000+5
 using namespace std;
-
-struct Car {
-	int id, arriveTime;
+struct car{
+	int id, arrive_time;
 };
-
 int main() {
-	int n, t, m, Q;
-	int res[MAX];
-	cin >> Q;
-	
-	while (Q--) {
-		queue<Car> qSide[2];
-		int arrived;
-		string atBank;
-		
+	int tc, n, t, m;
+	int res[MAX] = { 0 };
+	cin >> tc;
+	while (tc--) {
+		queue<car>q_side[2]; // Khoi tao mot mang gom 2 queue co do dai khac nhau: q_side[0] ben trai, q_side[1] ben phai
+		string pos;
+		int arrive_time;
 		cin >> n >> t >> m;
-		
 		for (int i = 1; i <= m; i++) {
-			cin >> arrived >> atBank;
-			
-			if (atBank == "left") {
-				qSide[0].push((Car) {i, arrived});
+			cin >> arrive_time >> pos;
+			if (pos == "left") {
+				q_side[0].push({i,arrive_time});
 			}
-			else {
-				qSide[1].push((Car) {i, arrived});
-			}
+			else q_side[1].push({i,arrive_time});
 		}
-		
-		int curSide = 0, curTime = 0, nextTime;
-		int waiting = !qSide[0].empty() + !qSide[1].empty();
-		
+		int cur_side = 0, cur_time = 0, next_time = 0; // ban dau pha o bo ben trai
+		int waiting = !q_side[0].empty() + !q_side[1].empty();
 		while (waiting) {
 			if (waiting == 1) {
-				nextTime = (qSide[0].empty() ? qSide[1].front().arriveTime : qSide[0].front().arriveTime);
+				next_time = (q_side[1].empty() ? q_side[0].front().arrive_time:q_side[1].front().arrive_time);
 			}
-			else {
-				nextTime = min(qSide[0].front().arriveTime, qSide[1].front().arriveTime);
-			}
-			
-			curTime = max(curTime, nextTime);
+			else next_time = min(q_side[0].front().arrive_time, q_side[1].front().arrive_time);
+			cur_time = max(next_time, cur_time);
 			int carried = 0;
-			
-			while (!qSide[curSide].empty()) {
-				Car car = qSide[curSide].front();
-				if (car.arriveTime <= curTime && carried < n) {
-					res[car.id] = curTime + t;
+			while (!q_side[cur_side].empty())
+			{
+				car next_car = q_side[cur_side].front();
+				if (carried < n && next_car.arrive_time <= cur_time) {
 					carried++;
-					qSide[curSide].pop();
+					q_side[cur_side].pop();
+					res[next_car.id] = cur_time + t;
 				}
-				else {
-					break;
-				}
+				else break;
 			}
-			
-			curTime += t;
-			curSide = 1 - curSide;
-			waiting = !qSide[0].empty() + !qSide[1].empty();
+			cur_side = 1 - cur_side;
+			cur_time += t;
+			waiting = !q_side[0].empty() + !q_side[1].empty();
 		}
-		
 		for (int i = 1; i <= m; i++) {
 			cout << res[i] << endl;
 		}
-		
-		if (Q) {
+		if (tc) {
 			cout << endl;
 		}
+		
 	}
 	return 0;
 }
